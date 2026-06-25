@@ -1,20 +1,18 @@
 Olá, eu sou o Daniel 👋
 
-Desenvolvedor Back-end especializado em PHP/Laravel, com foco em arquitetura de sistemas web, deploy e infraestrutura Linux. Mais de 4 anos transformando processos manuais e sistemas legados em aplicações modernas e escaláveis.
+Desenvolvedor Back-end especializado em PHP/Laravel, com foco em arquitetura de sistemas web, deploy e infraestrutura Linux. 5 anos transformando processos manuais e sistemas legados em aplicações modernas e escaláveis.
 
 📍 São Paulo, Brasil
-💼 LinkedIn
+💼 [LinkedIn](https://www.linkedin.com/in/dani-alves-dev/)
 🌐 Inglês profissional
-
 
 🚀 Projeto público
 
-financas-api
+**[taskflow-api](https://github.com/danwson/taskflow-api)**
 
-API REST em Laravel 11 para gestão financeira pessoal, com autenticação via Sanctum, CRUD completo de contas bancárias e arquitetura pensada para escalar. Projeto autoral, em desenvolvimento contínuo — código aberto para portfólio.
+API REST em Laravel 11 para gestão de tarefas em times, com sistema de webhooks assíncronos orientado a eventos (Events → Listeners → Jobs via Redis Queue). Autenticação via Sanctum, 7 entidades com políticas de autorização, dashboard web com Kanban, 41 testes automatizados (Pest), containerizado com Docker e CI/CD via GitHub Actions.
 
-Laravel PHP MySQL Sanctum API REST
-
+`Laravel` `PHP` `MySQL` `Redis` `Sanctum` `Docker` `API REST` `Webhooks`
 
 🏢 Case studies — sistemas em produção
 
@@ -26,18 +24,15 @@ Substituição de uma planilha de controle manual por um sistema web completo de
 
 O que foi construído:
 
+- CRUD de manifestações com filtros, prazos com indicação visual e fluxo de finalização
+- Dashboard analítico em tempo real — situação das manifestações, pendências por encaminhamento e resumo mensal
+- Geração de relatórios em PDF com indicadores mensais (DomPDF)
+- Módulo administrativo com 6 sub-CRUDs (encaminhamento, conclusão, tipo, contato, pesquisa, unidades)
+- Autenticação com 3 perfis de acesso (Administrador, Ouvidoria, Consulta), cada um com permissões específicas
 
-CRUD de manifestações com filtros, prazos com indicação visual e fluxo de finalização
-Dashboard analítico em tempo real — situação das manifestações, pendências por encaminhamento e resumo mensal
-Geração de relatórios em PDF com indicadores mensais (DomPDF)
-Módulo administrativo com 6 sub-CRUDs (encaminhamento, conclusão, tipo, contato, pesquisa, unidades)
-Autenticação com 3 perfis de acesso (Administrador, Ouvidoria, Consulta), cada um com permissões específicas
-
-
-Stack: Laravel 11 MySQL DomPDF Blade
+Stack: `Laravel 11` `MySQL` `DomPDF` `Blade`
 
 Infraestrutura: servidor Debian 11 configurado do zero (Apache, PHP 8.4-FPM, MariaDB), publicado em ambiente interno da FUNAP.
-
 
 🏠 Intranet FUNAP
 
@@ -45,29 +40,37 @@ Migração completa da intranet institucional de uma plataforma legada (Scriptca
 
 Módulos desenvolvidos (8 no total, cada um com área pública e painel administrativo):
 
-MóduloPúblicoAdminNotíciasListagem, detalhe, PDFCRUD completoAniversariantesLista por mês, destaque do diaCRUD + import CSVDestaquesGaleria com lightboxCRUD com uploadRamaisAgrupado por Diretoria/SetorCRUD + import CSVSistemasGrid por grupo com logoCRUD completoMídiaDownloads por grupoCRUD com uploadRedes SociaisWidget na homeCRUD com logoUsuários—Restrito ao administrador
+| Módulo | Público | Admin |
+|---|---|---|
+| Notícias | Listagem, detalhe, PDF | CRUD completo |
+| Aniversariantes | Lista por mês, destaque do dia | CRUD + import CSV |
+| Destaques | Galeria com lightbox | CRUD com upload |
+| Ramais | Agrupado por Diretoria/Setor | CRUD + import CSV |
+| Sistemas | Grid por grupo com logo | CRUD completo |
+| Mídia | Downloads por grupo | CRUD com upload |
+| Redes Sociais | Widget na home | CRUD com logo |
+| Usuários | — | Restrito ao administrador |
 
-Stack: Laravel 11 Tailwind CSS MariaDB Blade
+Stack: `Laravel 11` `Tailwind CSS` `MariaDB` `Blade`
 
 Infraestrutura: mesmo servidor Debian 11, com banco populado via importação CSV (aniversariantes, diretorias, setores, ramais e sistemas).
-
 
 🔧 Infraestrutura & DevOps
 
 Além do desenvolvimento das aplicações, também sou responsável pela infraestrutura que sustenta esses sistemas:
 
+- Backup automatizado: script de dump do MariaDB com compressão, retenção de 7 dias e limpeza automática, agendado via cron
+- Monitoramento: alerta de uso de disco acima de 80%
+- Segurança no GitHub: Deploy Keys individuais por repositório (somente leitura), remoção de credenciais expostas e acesso SSH via porta alternativa
 
-Backup automatizado: script de dump do MariaDB com compressão, retenção de 7 dias e limpeza automática, agendado via cron
-Monitoramento: alerta de uso de disco acima de 80%
-Segurança no GitHub: Deploy Keys individuais por repositório (somente leitura), remoção de credenciais expostas e acesso SSH via porta alternativa
+🌱 Atualmente aprendendo
 
-
+Aprofundando em containerização (Docker/Docker Compose), boas práticas de API REST e arquitetura de sistemas distribuídos, com o objetivo de evoluir para papéis backend com infraestrutura cloud.
 
 🛠️ Stack principal
 
-PHP Laravel MySQL MariaDB SQL Server Linux (Debian) Apache Git/GitHub Tailwind CSS JavaScript
-
+`PHP` `Laravel` `MySQL` `MariaDB` `SQL Server` `Linux (Debian)` `Apache` `Git/GitHub` `Tailwind CSS` `JavaScript`
 
 📫 Contato
 
-Aberto a oportunidades como Desenvolvedor Back-end PHP/Laravel. Entre em contato pelo LinkedIn.
+Aberto a oportunidades como Desenvolvedor Back-end PHP/Laravel. Entre em contato pelo [LinkedIn](https://linkedin.com/in/SEU-USUARIO-AQUI).
