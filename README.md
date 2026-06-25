@@ -73,4 +73,4 @@ Aprofundando em containerização (Docker/Docker Compose), boas práticas de API
 
 📫 Contato
 
-Aberto a oportunidades como Desenvolvedor Back-end PHP/Laravel. Entre em contato pelo [LinkedIn](https://linkedin.com/in/SEU-USUARIO-AQUI).
+Aberto a oportunidades como Desenvolvedor Back-end PHP/Laravel. Entre em contato pelo [LinkedIn](https://www.linkedin.com/in/dani-alves-dev/).
