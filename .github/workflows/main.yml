@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch: {}    # permite rodar manualmente pela aba Actions
 
+permissions:
+  contents: write   # só o necessário: ler o repo e commitar de volta
+
 jobs:
   update-readme:
     runs-on: ubuntu-latest
@@ -22,7 +25,7 @@ jobs:
 
       - name: Gera SVGs
         env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # token automático, sem setup manual
         run: python today.py
 
       - name: Comita mudanças

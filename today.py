@@ -3,8 +3,11 @@
 Gera dark_mode.svg e light_mode.svg pro README de perfil do GitHub
 (https://github.com/danwson/danwson), buscando stats reais via API.
 
-Requer a env var ACCESS_TOKEN (Personal Access Token do GitHub) com escopo
-'repo' + 'read:user' pra conseguir ler contribuições e stats de commits.
+Usa só o GITHUB_TOKEN automático do Actions (nada de PAT manual armazenado):
+token de vida curta, escopo mínimo, gerado e destruído a cada execução.
+Como consequência só lê dados PÚBLICOS (repos/commits/stars públicos) —
+não conta contribuições em repositórios privados, o que é adequado pra um
+card de perfil público de qualquer forma.
 """
 
 import os
@@ -15,17 +18,16 @@ from datetime import datetime, timezone
 import requests
 
 USERNAME = "danwson"
-API_URL = "https://api.github.com/graphql"
 REST_URL = "https://api.github.com"
 
-TOKEN = os.environ.get("ACCESS_TOKEN")
+TOKEN = os.environ.get("GITHUB_TOKEN")
 if not TOKEN:
-    sys.exit("ACCESS_TOKEN não definido — configure o secret no repositório.")
+    sys.exit("GITHUB_TOKEN não definido — normal só se rodar fora do Actions.")
 
-HEADERS_GQL = {"Authorization": f"bearer {TOKEN}"}
 HEADERS_REST = {
-    "Authorization": f"token {TOKEN}",
+    "Authorization": f"Bearer {TOKEN}",
     "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
 }
 
 # --------------------------------------------------------------------------- #
@@ -42,67 +44,49 @@ STATIC_FIELDS = {
 
 
 # --------------------------------------------------------------------------- #
-# Coleta de dados via API                                                     #
+# Coleta de dados via API (só endpoints REST públicos)                        #
 # --------------------------------------------------------------------------- #
-def gql(query: str, variables: dict) -> dict:
-    resp = requests.post(
-        API_URL, json={"query": query, "variables": variables}, headers=HEADERS_GQL, timeout=30
+def get_user_overview() -> dict:
+    """Segue paginação — GITHUB_TOKEN consegue ler qualquer repo público,
+    não só o do próprio workflow."""
+    resp = requests.get(f"{REST_URL}/users/{USERNAME}", headers=HEADERS_REST, timeout=30)
+    resp.raise_for_status()
+    user = resp.json()
+
+    repos, page = [], 1
+    while True:
+        resp = requests.get(
+            f"{REST_URL}/users/{USERNAME}/repos",
+            params={"type": "owner", "per_page": 100, "page": page},
+            headers=HEADERS_REST,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        batch = resp.json()
+        if not batch:
+            break
+        repos.extend(r for r in batch if not r["fork"])
+        page += 1
+
+    stars = sum(r["stargazers_count"] for r in repos)
+    return {
+        "followers": user["followers"],
+        "repos": user["public_repos"],
+        "stars": stars,
+        "repo_names": [r["name"] for r in repos],
+    }
+
+
+def get_total_commits() -> int:
+    """Commits públicos autorados pelo usuário, via API de busca de commits."""
+    resp = requests.get(
+        f"{REST_URL}/search/commits",
+        params={"q": f"author:{USERNAME}"},
+        headers=HEADERS_REST,
+        timeout=30,
     )
     resp.raise_for_status()
-    data = resp.json()
-    if "errors" in data:
-        raise RuntimeError(data["errors"])
-    return data["data"]
-
-
-def get_user_overview() -> dict:
-    query = """
-    query($login: String!) {
-      user(login: $login) {
-        createdAt
-        followers { totalCount }
-        repositories(first: 100, ownerAffiliations: OWNER, isFork: false,
-                      privacy: PUBLIC) {
-          totalCount
-          nodes { name stargazerCount }
-        }
-      }
-    }
-    """
-    data = gql(query, {"login": USERNAME})["user"]
-    stars = sum(r["stargazerCount"] for r in data["repositories"]["nodes"])
-    return {
-        "created_at": data["createdAt"],
-        "followers": data["followers"]["totalCount"],
-        "repos": data["repositories"]["totalCount"],
-        "stars": stars,
-        "repo_names": [r["name"] for r in data["repositories"]["nodes"]],
-    }
-
-
-def get_total_commits(created_at: str) -> int:
-    """Soma contribuições de commit ano a ano (a API só cobre 1 ano por vez)."""
-    start_year = datetime.fromisoformat(created_at.replace("Z", "+00:00")).year
-    end_year = datetime.now(timezone.utc).year
-
-    query = """
-    query($login: String!, $from: DateTime!, $to: DateTime!) {
-      user(login: $login) {
-        contributionsCollection(from: $from, to: $to) {
-          totalCommitContributions
-          restrictedContributionsCount
-        }
-      }
-    }
-    """
-    total = 0
-    for year in range(start_year, end_year + 1):
-        frm = f"{year}-01-01T00:00:00Z"
-        to = f"{year}-12-31T23:59:59Z"
-        data = gql(query, {"login": USERNAME, "from": frm, "to": to})["user"]
-        cc = data["contributionsCollection"]
-        total += cc["totalCommitContributions"] + cc["restrictedContributionsCount"]
-    return total
+    return resp.json().get("total_count", 0)
 
 
 def get_lines_of_code(repo_names: list[str]) -> tuple[int, int]:
@@ -184,7 +168,7 @@ def render_svg(lines: list[str], bg: str, fg: str, accent: str) -> str:
 
 def main():
     overview = get_user_overview()
-    commits = get_total_commits(overview["created_at"])
+    commits = get_total_commits()
     additions, deletions = get_lines_of_code(overview["repo_names"])
 
     stats = {
