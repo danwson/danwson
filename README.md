@@ -1,6 +1,6 @@
 ## 📊 GitHub Stats
 
-![Stats](https://github-readme-stats.vercel.app/api?username=danwson&show_icons=true&theme=dark&hide_border=true&count_private=true)
+![Stats](https://github-readme-stats.vercel.app/api?username=danwson&show_icons=true&theme=dark&hide_border=true)
 
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=danwson&layout=compact&theme=dark&hide_border=true)
 
