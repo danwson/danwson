@@ -4,7 +4,7 @@
 
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=danwson&layout=compact&theme=dark&hide_border=true)
 
-<a href="https://github.com/danwson/filevault">
+<a href="https://github.com/danwson/FileVault">
   <img src="https://github-readme-stats.vercel.app/api/pin/?username=danwson&repo=filevault&theme=dark&hide_border=true" />
 </a>
 <a href="https://github.com/danwson/taskflow-api">
