@@ -87,8 +87,35 @@ def get_user_overview() -> dict:
         "followers": user["followers"],
         "repos": user["public_repos"],
         "stars": stars,
-        "repo_names": [r["name"] for r in repos],
+        "owned_repos": [(USERNAME, r["name"]) for r in repos],
     }
+
+
+def get_contributed_repos(owned: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """Repos públicos de OUTROS donos onde o usuário aparece nos commits,
+    via busca de commits (até 1000 resultados, limite da Search API do
+    GitHub — cobre bem o uso normal de um perfil pessoal)."""
+    owned_set = {f"{o}/{n}".lower() for o, n in owned}
+    found = {}
+    for page in range(1, 11):
+        resp = requests.get(
+            f"{REST_URL}/search/commits",
+            params={"q": f"author:{USERNAME}", "per_page": 100, "page": page},
+            headers=HEADERS_REST,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        items = resp.json().get("items", [])
+        if not items:
+            break
+        for item in items:
+            full_name = item["repository"]["full_name"]
+            if full_name.lower() not in owned_set:
+                owner, name = full_name.split("/", 1)
+                found[full_name.lower()] = (owner, name)
+        if len(items) < 100:
+            break
+    return list(found.values())
 
 
 def get_total_commits() -> int:
@@ -103,12 +130,13 @@ def get_total_commits() -> int:
     return resp.json().get("total_count", 0)
 
 
-def get_lines_of_code(repo_names: list[str]) -> tuple[int, int]:
-    """Soma additions/deletions do usuário via /stats/contributors por repo.
+def get_lines_of_code(repos: list[tuple[str, str]]) -> tuple[int, int]:
+    """Soma additions/deletions do usuário via /stats/contributors por repo
+    (funciona pra qualquer repo público, não só os que ele é dono).
     Esse endpoint é assíncrono no GitHub: se voltar 202, precisa tentar de novo."""
     additions, deletions = 0, 0
-    for name in repo_names:
-        url = f"{REST_URL}/repos/{USERNAME}/{name}/stats/contributors"
+    for owner, name in repos:
+        url = f"{REST_URL}/repos/{owner}/{name}/stats/contributors"
         for attempt in range(6):
             resp = requests.get(url, headers=HEADERS_REST, timeout=30)
             if resp.status_code == 202:
@@ -222,7 +250,7 @@ def build_info_rows(stats: dict) -> list[dict]:
         _section_row("Contact"),
         _field_row("LinkedIn", STATIC_FIELDS["LinkedIn"]),
         _section_row("GitHub Stats"),
-        _field_row("Repos", f"{stats['repos']:,}"),
+        _field_row("Repos", f"{stats['repos']:,} {{Contributed: {stats['contributed']:,}}}"),
         _field_row("Stars", f"{stats['stars']:,}"),
         _field_row("Followers", f"{stats['followers']:,}"),
         _field_row("Commits", f"{stats['commits']:,}"),
@@ -325,10 +353,12 @@ def render_svg(art_grid: list[list[tuple]], info_rows: list[dict], bg: str, them
 def main():
     overview = get_user_overview()
     commits = get_total_commits()
-    additions, deletions = get_lines_of_code(overview["repo_names"])
+    contributed = get_contributed_repos(overview["owned_repos"])
+    additions, deletions = get_lines_of_code(overview["owned_repos"] + contributed)
 
     stats = {
         "repos": overview["repos"],
+        "contributed": len(contributed),
         "stars": overview["stars"],
         "followers": overview["followers"],
         "commits": commits,
